@@ -16,7 +16,7 @@ const navItems = [
   { href: '/contact', label: 'Contact' },
 ];
 
-const beartIndiaLogoUrl = "/images/beartindia-logo.jpg";
+const beartIndiaLogoUrl = "/images/beart-india-logo.svg";
 
 // Static base dimensions for SSR and initial client render
 const BASE_LOGO_WIDTH_INITIAL = 160; 
@@ -113,14 +113,15 @@ export function Header() {
             className="relative block transform transition-all hover:scale-105 duration-200"
             style={logoLinkStyle}
           >
-             <Image
-               src={beartIndiaLogoUrl}
-               alt="Beart India Logo"
-               fill 
-               className="object-contain" 
-               priority
-               // Removed sizes prop to simplify hydration, parent Link style should control dimensions
-             />
+            <div className="w-full h-full bg-black rounded p-1">
+              <Image
+                src={beartIndiaLogoUrl}
+                alt="Beart India Logo"
+                fill 
+                className="object-contain" 
+                priority
+              />
+            </div>
           </Link>
         </div>
 
@@ -148,14 +149,14 @@ export function Header() {
                <SheetHeader className="p-4 border-b">
                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle> 
                  <SheetClose asChild>
-                    <Link href="/" aria-label="Beart India Group Home" className="flex items-center gap-2">
-                       <Image
-                         src={beartIndiaLogoUrl}
-                         alt="Beart India Logo"
-                         width={Math.round(BASE_LOGO_WIDTH_INITIAL * 0.8)} 
-                         height={Math.round(BASE_LOGO_HEIGHT_INITIAL * 0.8)}
-                         className="object-contain"
-                       />
+                    <Link href="/" aria-label="Beart India Group Home" className="flex items-center gap-2 bg-black rounded p-1">
+                      <Image
+                        src={beartIndiaLogoUrl}
+                        alt="Beart India Logo"
+                        width={Math.round(BASE_LOGO_WIDTH_INITIAL * 0.8)} 
+                        height={Math.round(BASE_LOGO_HEIGHT_INITIAL * 0.8)}
+                        className="object-contain"
+                      />
                     </Link>
                  </SheetClose>
                </SheetHeader>
@@ -178,4 +179,3 @@ export function Header() {
     </header>
   );
 }
-
