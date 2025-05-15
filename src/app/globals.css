@@ -45,7 +45,7 @@ body {
     
     /* This was saffron, now aligning with primary green for general CTAs */
     --accent-cta-custom: 145 65% 35%; /* Vibrant Green */
-    --accent-cta-custom-foreground: 0 0% 100%; /* White */
+    --accent-cta-custom-foreground: 0 0% 100%; /* White */ 
 
 
     /* Sidebar colors (can be aligned with main theme or kept distinct) */
@@ -159,3 +159,18 @@ body {
   }
 }
 
+/* Marquee Animation */
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 72s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+}
