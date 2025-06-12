@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { getFirestore, Firestore } from 'firebase-admin/firestore'; // Import Firestore module
 import { initializeFirebaseAdminApp } from '@/lib/firebase-admin-init';
+import { headers } from 'next/headers';
 
 // Schema for contact form validation
 const ContactFormSchema = z.object({
@@ -54,6 +55,24 @@ export async function submitContactFormAction(formData: FormData): Promise<Conta
       ...validatedData,
       submittedAt: Firestore.FieldValue.serverTimestamp(), // Use FieldValue.serverTimestamp()
     });
+
+   try {
+      const reqHeaders = await headers(); // ✅ correct
+      const host = reqHeaders.get('host');
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const baseUrl = `${protocol}://${host}`;
+
+      fetch(`${baseUrl}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData),
+      }).catch((err) => {
+        console.error("📧 Email sending failed silently:", err);
+      });
+      console.log("📧Mail Sent Successfully")
+    } catch (emailError) {
+      console.error("📧 Email logic crashed:", emailError);
+    }
 
     console.log("✅ Contact form data saved to Firestore successfully.");
     return { success: true, data: validatedData };
