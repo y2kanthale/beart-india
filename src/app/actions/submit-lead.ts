@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { initializeFirebaseAdminApp } from '@/lib/firebase-admin-init';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { headers } from 'next/headers';
 
 const APP_NAME = 'Beart India';
 
@@ -66,6 +67,23 @@ export async function submitLeadAction(formData: FormData): Promise<ActionResult
 
     await db.collection('leads').add(dataToSave);
 
+    try {
+          const reqHeaders = await headers(); // ✅ correct
+          const host = reqHeaders.get('host');
+          const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+          const baseUrl = `${protocol}://${host}`;
+    
+          fetch(`${baseUrl}/api/send-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(validatedData),
+          }).catch((err) => {
+            console.error("📧 Email sending failed silently:", err);
+          });
+          console.log("📧Mail Sent Successfully")
+        } catch (emailError) {
+          console.error("📧 Email logic crashed:", emailError);
+        }
 
     console.log(
       `Lead for ${validatedData.serviceTitle} saved to Firestore successfully:`,
