@@ -13,6 +13,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
     "plugins": [
       {
         "name": "next"
