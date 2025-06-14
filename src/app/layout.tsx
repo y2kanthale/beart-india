@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { initializeApp, getApps } from 'firebase/app';
-
+import Analytics from './analytics';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -116,6 +116,7 @@ export default function RootLayout({
           <Footer />
         </div>
          <Toaster />
+         <Analytics />
       </body>
     </html>
   );
