@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+/functions
 
 # testing
 /coverage
@@ -39,3 +40,4 @@ next-env.d.ts
 
 .genkit/*
 .env*
+.env.local
