@@ -10,7 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 /functions
-/secrets
+/secrets/serviceAccountKey.json
 /node_modules
 
 # testing
