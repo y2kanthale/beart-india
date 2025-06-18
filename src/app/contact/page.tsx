@@ -1,6 +1,8 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card, CardContent, CardHeader, CardTitle, CardDescription
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,190 +13,256 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { submitContactFormAction } from "@/app/actions/submit-contact"; 
+import { submitContactFormAction } from "@/app/actions/submit-contact";
 import { Separator } from "@/components/ui/separator";
 
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage
 } from "@/components/ui/form";
 
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+} from "@/components/ui/select";
+
+/*───────────────────────────────────────────────────────────────────────────*/
+/*  ── Options map  ───────────────────────────────────────────────────────  */
+
+const SUBJECT_OPTIONS: Record<string, string[]> = {
+  investment: [
+    "Mutual Fund Planning",
+    "Equity Portfolio Advisory",
+    "NRI Investment Services",
+    "Wealth Building Workshops",
+    "Alternative Investment Funds",
+    "Portfolio Management Services",
+    "Smallcase Portfolios",
+    "Non-Convertible Debentures",
+  ],
+  insurance: [
+    "Life Insurance",
+    "Health Insurance",
+    "Bonds",
+    "Invoice Discounting / FDs",
+  ],
+  loans: [
+    "Home Loans",
+    "Education Loans",
+    "Loan Against Mutual Funds",
+  ],
+  software: [
+    "Website Hosting & Domain",
+    "Google Workspace",
+    "SME Digital Launch Pack",
+    "Technical Consulting",
+  ],
+  foundation: [
+    "General Enquiry",
+  ],
+};
+
+/*───────────────────────────────────────────────────────────────────────────*/
+/*  ── Zod schema  ─────────────────────────────────────────────────────────  */
 
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().min(1, "Email is required").email("Invalid email address"),
-  subject: z.string().min(1, "Subject is required"),
+  category: z.string().min(1, "Please choose a category"),
+  subject: z.string().min(1, "Please pick a service"),
   message: z.string().min(5, "Message must be at least 5 characters long"),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
+
+/*───────────────────────────────────────────────────────────────────────────*/
+/*  ── Component  ──────────────────────────────────────────────────────────  */
 
 export default function ContactPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
+  useEffect(() => setIsMounted(true), []);
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       email: "",
+      category: "",
       subject: "",
       message: "",
     },
   });
 
+  /*──────────────────────── Submission ────────────────────────*/
   async function onSubmit(values: ContactFormValues) {
     setIsSubmitting(true);
     const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value as string); 
-    });
-
+    Object.entries(values).forEach(([k, v]) => formData.append(k, v));
     try {
       const result = await submitContactFormAction(formData);
       if (result.success) {
-        toast({
-          title: "Message Sent!",
-          description: "Thank you for contacting us. We will get back to you soon.",
-        });
+        toast({ title: "Message Sent!", description: "We will get back to you soon." });
         form.reset();
       } else {
-        toast({
-          title: "Sending Failed",
-          description: result.error || "An error occurred. Please try again.",
-          variant: "destructive",
-        });
+        toast({ title: "Sending Failed", description: result.error, variant: "destructive" });
       }
-    } catch (error) {
-      console.error("Contact form submission error:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again later.",
-        variant: "destructive",
-      });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: "Unexpected error. Try later.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   }
-  
-  if (!isMounted) {
-    return null; 
-  }
 
+  if (!isMounted) return null;
 
+  /*──────────────────────── Render ────────────────────────────*/
   return (
     <div className="container mx-auto flex-grow py-8 sm:py-12 md:py-16 lg:py-20 px-4 md:px-6">
-       <Card className="max-w-2xl w-full mx-auto animate-in fade-in zoom-in-95 duration-500 border-0 shadow-none">
-          <CardHeader className="text-left">
-            <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold animate-in fade-in slide-in-from-top-8 duration-700">Contact Us</CardTitle>
-            <CardDescription className="text-sm sm:text-base animate-in fade-in slide-in-from-top-10 duration-700 delay-100">We&apos;re here to help. Reach out through any of the methods below or fill out the form.</CardDescription>
-          </CardHeader>
-          <CardContent className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-             <div className="flex flex-col gap-8 md:gap-10 mb-8">
-                
-                 <div className="w-full text-left">
-                   <h3 className="text-lg sm:text-xl font-semibold mb-4">Send Us a Message</h3>
-                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="sr-only md:not-sr-only">Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your Name" {...field} disabled={isSubmitting} className="transition-shadow focus:shadow-md text-sm sm:text-base" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="sr-only md:not-sr-only">Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="your.email@example.com" {...field} disabled={isSubmitting} className="transition-shadow focus:shadow-md text-sm sm:text-base" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="sr-only md:not-sr-only">Subject</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Subject of your message" {...field} disabled={isSubmitting} className="transition-shadow focus:shadow-md text-sm sm:text-base" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="message"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="sr-only md:not-sr-only">Message</FormLabel>
-                            <FormControl>
-                              <Textarea placeholder="How can we help you?" rows={4} {...field} disabled={isSubmitting} className="transition-shadow focus:shadow-md text-sm sm:text-base" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full transform transition-transform hover:scale-105 text-sm sm:text-base btn-cta-custom" disabled={isSubmitting}>
-                        {isSubmitting ? "Sending..." : "Send Message"}
-                      </Button>
-                    </form>
-                  </Form>
-                 </div>
+      <Card className="max-w-2xl w-full mx-auto border-0 shadow-none">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">Contact Us</CardTitle>
+          <CardDescription>We're here to help. Fill out the form below.</CardDescription>
+        </CardHeader>
 
-                 <Separator className="my-4 md:my-6" />
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl><Input placeholder="Your Name" {...field} disabled={isSubmitting} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                 <div className="w-full text-left">
-                   <h3 className="text-lg sm:text-xl font-semibold mb-4">Get in Touch Directly</h3>
-                   <div className="space-y-3 sm:space-y-4">
-                     <Button size="lg" className="w-full justify-start gap-2 transform transition-transform hover:scale-105 text-sm sm:text-base btn-cta-custom" asChild>
-                       <Link href="https://wa.me/919145656666" target="_blank" >
-                         <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" /> WhatsApp Us (+91-9145656666)
-                       </Link>
-                     </Button>
-                     <Button size="lg" className="w-full justify-start gap-2 transform transition-transform hover:scale-105 text-sm sm:text-base btn-cta-custom" asChild>
-                       <Link href="tel:+919145656666"> 
-                         <Phone className="h-4 w-4 sm:h-5 sm:w-5" /> Call +91-9145656666
-                       </Link>
-                     </Button>
-                     <Button size="lg" className="w-full justify-start gap-2 transform transition-transform hover:scale-105 text-sm sm:text-base btn-cta-custom" asChild>
-                       <Link href="mailto:info@beartindia.com">
-                         <Mail className="h-4 w-4 sm:h-5 sm:w-5" /> Email: info@beartindia.com
-                       </Link>
-                     </Button>
-                     <Button size="lg" className="w-full justify-start gap-2 transform transition-transform hover:scale-105 text-sm sm:text-base btn-cta-custom" asChild>
-                        <Link href="/contact?service=Consultation">
-                            <FileText className="h-4 w-4 sm:h-5 sm:w-5" /> Schedule a Free Consultation
-                        </Link>
-                     </Button>
-                   </div>
-                </div>
-             </div>
-          </CardContent>
-       </Card>
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl><Input type="email" placeholder="you@example.com" {...field} disabled={isSubmitting} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Category (titles selectable) */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        form.setValue("subject", ""); // reset service when category changes
+                      }}
+                      defaultValue={field.value}
+                      disabled={isSubmitting}
+                    >
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="investment">Investment Planning</SelectItem>
+                        <SelectItem value="insurance">Insurance</SelectItem>
+                        <SelectItem value="loans">Loans</SelectItem>
+                        <SelectItem value="software">Software Solutions</SelectItem>
+                        <SelectItem value="foundation">Beart Foundation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Service (depends on category) */}
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => {
+                  const category = form.watch("category");
+                  const options = SUBJECT_OPTIONS[category as keyof typeof SUBJECT_OPTIONS] ?? [];
+                  return (
+                    <FormItem>
+                      <FormLabel>Service</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={!category || isSubmitting}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={category ? "Select a service" : "Select category first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {options.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+              {/* Message */}
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message</FormLabel>
+                    <FormControl><Textarea rows={4} placeholder="How can we help you?" {...field} disabled={isSubmitting} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Send Message"}
+              </Button>
+            </form>
+          </Form>
+
+          <Separator className="my-6" />
+
+          {/* Direct contact section (unchanged) */}
+          <div className="space-y-3">
+            <Button size="lg" className="w-full justify-start gap-2" asChild>
+              <Link href="https://wa.me/919145656666" target="_blank">
+                <MessageSquare className="h-4 w-4" /> WhatsApp Us (+91‑9145656666)
+              </Link>
+            </Button>
+            <Button size="lg" className="w-full justify-start gap-2" asChild>
+              <Link href="tel:+919145656666"><Phone className="h-4 w-4" /> Call +91‑9145656666</Link>
+            </Button>
+            <Button size="lg" className="w-full justify-start gap-2" asChild>
+              <Link href="mailto:info@beartindia.com"><Mail className="h-4 w-4" /> Email: info@beartindia.com</Link>
+            </Button>
+            <Button size="lg" className="w-full justify-start gap-2" asChild>
+              <Link href="/contact?service=Consultation"><FileText className="h-4 w-4" /> Schedule a Free Consultation</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

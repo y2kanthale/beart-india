@@ -185,12 +185,12 @@ export function LeadGenerationForm({ serviceTitle, className }: LeadGenerationFo
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="< 5L">&lt; 5 Lakhs</SelectItem>
-                        <SelectItem value="5L-25L">5 - 25 Lakhs</SelectItem>
-                        <SelectItem value="25L-50L">25 - 50 Lakhs</SelectItem>
-                        <SelectItem value="50L-1Cr">50 Lakhs - 1 Crore</SelectItem>
-                        <SelectItem value="> 1Cr">&gt; 1 Crore</SelectItem>
-                        <SelectItem value="Not Applicable">Not Applicable / Undecided</SelectItem>
+                        <SelectItem value="0-10K">0 - 10 Thousands</SelectItem>
+                        <SelectItem value="10K-25K">10 Thousands - 25 Thousands</SelectItem>
+                        <SelectItem value="25K-50K">25 Thousands - 50 Thousands</SelectItem>
+                        <SelectItem value="50K-1L">50 Thousands - 1 Lakhs</SelectItem>
+                        <SelectItem value=">1L">&gt; 1 Lakhs</SelectItem>
+                        <SelectItem value="NA">Not Applicable / Undecided</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
